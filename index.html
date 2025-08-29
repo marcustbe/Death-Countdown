@@ -8,9 +8,9 @@
     :root{
       --bg:#000;
       --fg:#fff;
-      --grey-1:rgba(255,255,255,0.72); /* days, minutes */
-      --grey-2:rgba(255,255,255,0.50); /* years, seconds */
-      --label:rgba(255,255,255,0.36);  /* tiny text labels */
+      --grey-1:rgba(255,255,255,0.72);
+      --grey-2:rgba(255,255,255,0.50);
+      --label:rgba(255,255,255,0.36);
     }
     html,body{height:100%;background:var(--bg);color:var(--fg);}
     body{
@@ -23,20 +23,22 @@
       background-size:180px 180px;background-repeat:repeat;
       background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180">  <filter id="n">    <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/>  </filter>  <rect width="100%" height="100%" filter="url(%23n)" fill="white"/></svg>');
     }
-    .stack{display:grid;gap:2.4vh;text-align:center;}
+    .stack{display:grid;gap:2.2vh;text-align:center;}
 
     /* Values */
     .value{margin:0;line-height:1;font-weight:800;letter-spacing:.01em;}
-    .years{color:var(--grey-2); font-size:clamp(26px,8.5vw,64px);}    /* bigger */
-    .days{ color:var(--grey-1); font-size:clamp(30px,9.5vw,72px);}    /* bigger */
-    .hours{color:var(--fg);     font-size:clamp(64px,22vw,260px); letter-spacing:.02em; margin:.1em 0;}
-    .minutes{color:var(--grey-1); font-size:clamp(30px,9.5vw,72px);}  /* bigger */
-    .seconds{color:var(--grey-2); font-size:clamp(26px,8.5vw,64px);}  /* bigger */
+    .years{color:var(--grey-2); font-size:clamp(26px,8.5vw,64px);}    
+    .days{ color:var(--grey-1); font-size:clamp(30px,9.5vw,72px);}    
+    .hours{color:var(--fg); font-size:clamp(64px,22vw,260px); letter-spacing:.02em; margin:.1em 0;}
+    .minutes{color:var(--grey-1); font-size:clamp(30px,9.5vw,72px);}  
+    .seconds{color:var(--grey-2); font-size:clamp(26px,8.5vw,64px);}  
 
-    /* Under labels */
-    .under{margin:0;line-height:1; font-weight:600;
-           font-size:clamp(10px,2.6vw,14px); color:var(--label);}
-    .spacer{height:0.2vh;}
+    /* Under labels with tighter spacing */
+    .under{
+      margin:0.2em 0 0.05em 0; /* reduce vertical spacing */
+      line-height:1; font-weight:600;
+      font-size:clamp(10px,2.4vw,13px); color:var(--label);
+    }
   </style>
 </head>
 <body>
@@ -60,50 +62,22 @@
   </div>
 
   <script>
-    // Config: born 17 Feb 2004, expect 86
-    const birthStr = "2004-02-17"; // YYYY-MM-DD
+    const birthStr = "2004-02-17";
     const lifeExpectancy = 86;
-
-    function parseLocalDate(s){
-      const [y,m,d] = s.split("-").map(Number);
-      return new Date(y, m-1, d, 0,0,0,0);
+    function parseLocalDate(s){const [y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d,0,0,0,0);}
+    const birthDate=parseLocalDate(birthStr);
+    const deathDate=new Date(birthDate);deathDate.setFullYear(deathDate.getFullYear()+lifeExpectancy);
+    const MS={second:1000,minute:60*1000,hour:60*60*1000,day:24*60*60*1000,year:365.2425*24*60*60*1000};
+    const el={years:document.getElementById("years"),days:document.getElementById("days"),hours:document.getElementById("hours"),minutes:document.getElementById("minutes"),seconds:document.getElementById("seconds")};
+    function fmtInt(n){return Math.max(0,Math.floor(n)).toLocaleString(undefined);}
+    function tick(){const now=new Date();const ms=Math.max(0,deathDate-now);
+      el.years.textContent=fmtInt(ms/MS.year);
+      el.days.textContent=fmtInt(ms/MS.day);
+      el.hours.textContent=fmtInt(ms/MS.hour);
+      el.minutes.textContent=fmtInt(ms/MS.minute);
+      el.seconds.textContent=fmtInt(ms/MS.second);
     }
-
-    const birthDate = parseLocalDate(birthStr);
-    const deathDate = new Date(birthDate);
-    deathDate.setFullYear(deathDate.getFullYear() + lifeExpectancy);
-
-    const MS = {
-      second: 1000,
-      minute: 60*1000,
-      hour:   60*60*1000,
-      day:    24*60*60*1000,
-      year:   365.2425*24*60*60*1000
-    };
-
-    const el = {
-      years: document.getElementById("years"),
-      days: document.getElementById("days"),
-      hours: document.getElementById("hours"),
-      minutes: document.getElementById("minutes"),
-      seconds: document.getElementById("seconds")
-    };
-
-    function fmtInt(n){ return Math.max(0, Math.floor(n)).toLocaleString(undefined); }
-
-    function tick(){
-      const now = new Date();
-      const ms = Math.max(0, deathDate - now);
-
-      el.years.textContent = fmtInt(ms / MS.year);     // no decimals
-      el.days.textContent = fmtInt(ms / MS.day);       // no decimals
-      el.hours.textContent = fmtInt(ms / MS.hour);
-      el.minutes.textContent = fmtInt(ms / MS.minute);
-      el.seconds.textContent = fmtInt(ms / MS.second);
-    }
-
-    tick();
-    setInterval(tick, 250);
+    tick();setInterval(tick,250);
   </script>
 </body>
 </html>
